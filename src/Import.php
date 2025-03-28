@@ -7,11 +7,12 @@ use Maatwebsite\Excel\Concerns\Importable;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
-class Import implements ToCollection, WithHeadingRow {
+class Import implements ToCollection, WithHeadingRow
+{
+    use Importable;
 
-  use Importable;
-
-  public function collection(Collection $collection) {
-    return $collection;
-  }
+    public function collection(Collection $collection)
+    {
+        return $collection;
+    }
 }

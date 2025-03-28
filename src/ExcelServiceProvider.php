@@ -4,7 +4,6 @@ namespace PittacusW\Excel;
 
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use PittacusW\Excel\Commands\ExcelCommand;
 
 class ExcelServiceProvider extends PackageServiceProvider
 {
@@ -15,6 +14,6 @@ class ExcelServiceProvider extends PackageServiceProvider
          *
          * More info: https://github.com/spatie/laravel-package-tools
          */
-        $package ->name('excel');
+        $package->name('excel');
     }
 }
