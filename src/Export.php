@@ -17,7 +17,7 @@ class Export implements FromCollection, WithHeadings
 
     private $headings;
 
-    public function __construct(Collection $data, array $headings, string $fileName = null)
+    public function __construct(Collection $data, array $headings, ?string $fileName = null)
     {
         $this->data = $data;
         $this->headings = $headings;
