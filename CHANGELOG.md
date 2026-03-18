@@ -2,6 +2,10 @@
 
 All notable changes to `excel` will be documented in this file.
 
+## v2 - 2026-03-18
+
+Laravel 13 support
+
 ## Unreleased
 
 - added a concrete `PittacusW\Excel\Excel` service and fixed the facade target
