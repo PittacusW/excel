@@ -1,84 +1,123 @@
-# Package to integrate Excel and Laravel
+# PittacusW Excel
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/pittacusw/excel.svg?style=flat-square)](https://packagist.org/packages/pittacusw/excel)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/pittacusw/excel/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/pittacusw/excel/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/pittacusw/excel/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/pittacusw/excel/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/pittacusw/excel.svg?style=flat-square)](https://packagist.org/packages/pittacusw/excel)
+Lightweight collection-first helpers for importing and exporting spreadsheets in Laravel.
 
-This is where your description should go. Limit it to a paragraph or two. Consider adding a small example.
+This package wraps `maatwebsite/excel` with a smaller API for the common cases:
 
-## Support us
+- export collections or arrays with optional headings
+- auto-derive headings from associative rows
+- import spreadsheets directly into an `Illuminate\Support\Collection`
+- work cleanly across Laravel 9, 10, 11, 12, and 13
 
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/excel.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/excel)
+## Compatibility
 
-We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
-
-We highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using. You'll find our address on [our contact page](https://spatie.be/about-us). We publish all received postcards on [our virtual postcard wall](https://spatie.be/open-source/postcards).
+| Laravel | Testbench | PHP |
+| --- | --- | --- |
+| 9.x | 7.x | 8.1+ |
+| 10.x | 8.x | 8.1+ |
+| 11.x | 9.x | 8.2+ |
+| 12.x | 10.x | 8.2+ |
+| 13.x | 11.x | 8.3+ |
 
 ## Installation
-
-You can install the package via composer:
 
 ```bash
 composer require pittacusw/excel
 ```
 
-You can publish and run the migrations with:
-
-```bash
-php artisan vendor:publish --tag="excel-migrations"
-php artisan migrate
-```
-
-You can publish the config file with:
-
-```bash
-php artisan vendor:publish --tag="excel-config"
-```
-
-This is the contents of the published config file:
-
-```php
-return [
-];
-```
-
-Optionally, you can publish the views using
-
-```bash
-php artisan vendor:publish --tag="excel-views"
-```
-
 ## Usage
 
+Inject the service:
+
 ```php
-$excel = new PittacusW\Excel();
-echo $excel->echoPhrase('Hello, PittacusW!');
+use PittacusW\Excel\Excel;
+
+class ExportUsersController
+{
+    public function __invoke(Excel $excel)
+    {
+        return $excel->download(
+            rows: [
+                ['name' => 'Ada', 'email' => 'ada@example.com'],
+                ['name' => 'Grace', 'email' => 'grace@example.com'],
+            ],
+            fileName: 'users',
+        );
+    }
+}
 ```
+
+Use the facade explicitly:
+
+```php
+use PittacusW\Excel\Facades\Excel;
+
+$rows = Excel::import(
+    file: $request->file('users.xlsx'),
+    headingRow: 1,
+);
+```
+
+### Export API
+
+```php
+use PittacusW\Excel\Excel;
+
+$excel->download(
+    rows: [
+        ['name' => 'Ada', 'email' => 'ada@example.com'],
+    ],
+    headings: ['Name', 'Email'],
+    fileName: 'users',
+);
+
+$excel->store(
+    rows: [
+        ['name' => 'Ada', 'email' => 'ada@example.com'],
+    ],
+    filePath: 'exports/users.xlsx',
+);
+
+$contents = $excel->raw(
+    rows: [
+        ['name' => 'Ada', 'email' => 'ada@example.com'],
+    ],
+);
+```
+
+### Import API
+
+```php
+use PittacusW\Excel\Excel;
+
+$rows = $excel->import(
+    file: storage_path('app/imports/users.xlsx'),
+    headingRow: 1,
+);
+```
+
+Imported rows are returned as an `Illuminate\Support\Collection`.
+
+## Public API
+
+```php
+download(iterable $rows, array $headings = [], ?string $fileName = null, ?string $writerType = null, array $headers = [])
+store(iterable $rows, string $filePath, array $headings = [], ?string $disk = null, ?string $writerType = null, array|string $diskOptions = [])
+raw(iterable $rows, array $headings = [], ?string $writerType = null)
+import(string|\Illuminate\Http\UploadedFile $file, int $headingRow = 1, ?string $disk = null, ?string $readerType = null)
+makeExport(iterable $rows, array $headings = [], ?string $fileName = null)
+makeImport(int $headingRow = 1)
+```
+
+## Upgrade Notes
+
+- The package now ships a real `PittacusW\Excel\Excel` service behind the facade.
+- The automatic global `Excel` alias was removed to avoid collisions with `Maatwebsite\Excel\Facades\Excel`.
+- Exports now normalize associative rows and can infer headings automatically.
+- Imports now keep the imported collection available after execution.
 
 ## Testing
 
 ```bash
 composer test
 ```
-
-## Changelog
-
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
-
-## Contributing
-
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
-
-## Security Vulnerabilities
-
-Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
-
-## Credits
-
-- [PittacusW](https://github.com/PittacusW)
-- [All Contributors](../../contributors)
-
-## License
-
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
